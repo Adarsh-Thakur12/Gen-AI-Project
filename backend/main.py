@@ -82,7 +82,7 @@ def read_root():
     """A simple root endpoint to confirm the server is running."""
     return {"message": "Welcome to the Artisan Assistant API! Visit /docs for more."}
 
-@app.post("/api/generate-bio", tags=["Content Generation"])
+@app.post("/api/generate-content", tags=["Content Generation"])
 async def generate_product_content(request: ProductRequest):
     """
     Receives product details and generates marketing content, including SEO tags.
