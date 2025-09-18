@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import logo from "../assets/images/Kalakar_logo.png"
 
 const CGPage = () => {
     // State to manage which form is currently displayed: 'bio' or 'content'
