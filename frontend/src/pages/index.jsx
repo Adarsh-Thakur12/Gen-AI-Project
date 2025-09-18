@@ -282,6 +282,9 @@ const CGPage = () => {
     return (
         <div style={containerStyle}>
             <div style={cardStyle}>
+                <div style={logoWrapper}>
+                    <img style={logo_style} src={logo} alt="Logo"/>
+                </div>
                 <h1 style={titleStyle}>
                     {feature === 'bio'
                         ? '"About The Artisan" Bio Generation'
@@ -485,6 +488,16 @@ const contentFieldText = {
     lineHeight: '1.6',
     whiteSpace: 'pre-wrap',
 };
+
+const logoWrapper = {
+    display: 'flex',
+    justifyContent: 'center',
+}
+
+const logo_style = {
+    height: '120px',
+    width: '120px',
+}
 
 
 export default CGPage;
