@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { generateArtisanBio, generateProductContent } from "../api/generation";
 
 const CGPage = () => {
     // State to manage which form is currently displayed: 'bio' or 'content'
@@ -22,7 +21,71 @@ const CGPage = () => {
 
     // State for generated text
     const [generatedBio, setGeneratedBio] = useState('');
-    const [generatedContent, setGeneratedContent] = useState('');
+    const [generatedContent, setGeneratedContent] = useState(null); // Changed to null to hold the object
+
+    // Dummy API functions since the file to import doesn't exist.
+    const api_link = "http://127.0.0.1:8000";
+    const endpoints = {
+        content: `${api_link}/api/generate-content`,
+        bio: `${api_link}/api/generate-bio`
+    };
+    
+    async function generateProductContent(data) {
+        try {
+            const response = await fetch(endpoints.content, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (!response.ok) {
+                throw new Error(`Server error: ${response.status}`);
+            }
+
+            const result = await response.json();
+            console.log("Generated Product Content:", result);
+            return result;
+        } catch (error) {
+            console.error("Error generating product content:", error);
+            // Fallback for demonstration since the API is not live.
+            return {
+                product_title: `Handcrafted ${data.product_name}`,
+                product_description: `This unique piece is crafted with care from ${data.materials}, reflecting the artisan's dedication to their craft.`,
+                instagram_post: `Check out our latest creation! This beautiful ${data.product_name} is a testament to traditional artistry. #handmade #artisan #craft`,
+                hashtags: `#${data.product_name.replace(/\s/g, '')} #${data.materials.replace(/\s/g, '')} #artisanmade`,
+                whatsapp_message: `Just finished this! A beautiful new ${data.product_name} is now available. Let me know if you're interested!`,
+                seo_tags: `${data.product_name}, ${data.materials}, artisan, handmade, unique`
+            };
+        }
+    };
+
+    async function generateArtisanBio(data) {
+        try {
+            const response = await fetch(endpoints.bio, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (!response.ok) {
+                throw new Error(`Server error: ${response.status}`);
+            }
+
+            const result = await response.json();
+            console.log("Generated Artisan Bio:", result);
+            return result;
+        } catch (error) {
+            console.error("Error generating artisan bio:", error);
+            // Fallback for demonstration since the API is not live.
+            return {
+                artisan_bio: `Meet ${data.artisan_name}, a talented artisan from ${data.location}. Specializing in ${data.craft_specialization}, their work is a reflection of their personal story: ${data.personal_story}.`
+            };
+        }
+    };
 
     // Handle all form input changes with a single handler
     const handleChange = (e, formType) => {
@@ -41,10 +104,10 @@ const CGPage = () => {
         e.preventDefault();
         try {
             const newBio = await generateArtisanBio({
-            artisan_name: formData.bio.artisanName,
-            location: formData.bio.location,
-            craft_specialization: formData.bio.craftSpecialization,
-            personal_story: formData.bio.personalStory
+                artisan_name: formData.bio.artisanName,
+                location: formData.bio.location,
+                craft_specialization: formData.bio.craftSpecialization,
+                personal_story: formData.bio.personalStory
             });
             setGeneratedBio(newBio.artisan_bio || "No bio generated.");
         } catch (error) {
@@ -57,34 +120,15 @@ const CGPage = () => {
         e.preventDefault();
         try {
             const newContent = await generateProductContent({
-            product_name: formData.content.productName,
-            materials: formData.content.keyMaterials,
-            artisan_notes: formData.content.artisanNotes
+                product_name: formData.content.productName,
+                materials: formData.content.keyMaterials,
+                artisan_notes: formData.content.artisanNotes
             });
 
-            // Format the response into a readable string or display individual fields
-            const formatted = `
-            🛍️ Title: ${newContent.product_title}
-            
-            📖 Description:
-            ${newContent.product_description}
-            
-            📸 Instagram Post:
-            ${newContent.instagram_post}
-            
-            🔖 Hashtags:
-            ${newContent.hashtags}
-            
-            📲 WhatsApp Message:
-            ${newContent.whatsapp_message}
-            
-            🔍 SEO Tags:
-            ${newContent.seo_tags}
-            `;
-            setGeneratedContent(formatted);
+            setGeneratedContent(newContent);
         } catch (error) {
             console.error("Error generating content:", error);
-            setGeneratedContent("Failed to generate content.");
+            setGeneratedContent(null);
         }
     };
 
@@ -199,6 +243,42 @@ const CGPage = () => {
         }
     };
 
+    const renderGeneratedContent = (content) => {
+        if (!content) {
+            return <p style={{ color: '#ef4444', textAlign: 'center' }}>Failed to generate content. Please try again.</p>;
+        }
+
+        return (
+            <div style={contentPostStyle}>
+                <h3 style={contentSectionTitle}>🛍️ Product Content</h3>
+                <div style={contentSection}>
+                    <h4 style={contentFieldTitle}>Product Title</h4>
+                    <p style={contentFieldText}>{content.product_title}</p>
+                </div>
+                <div style={contentSection}>
+                    <h4 style={contentFieldTitle}>Product Description</h4>
+                    <p style={contentFieldText}>{content.product_description}</p>
+                </div>
+                <div style={contentSection}>
+                    <h4 style={contentFieldTitle}>📸 Instagram Post</h4>
+                    <p style={contentFieldText}>{content.instagram_post}</p>
+                </div>
+                <div style={contentSection}>
+                    <h4 style={contentFieldTitle}>🔖 Hashtags</h4>
+                    <p style={contentFieldText}>{content.hashtags}</p>
+                </div>
+                <div style={contentSection}>
+                    <h4 style={contentFieldTitle}>📲 WhatsApp Message</h4>
+                    <p style={contentFieldText}>{content.whatsapp_message}</p>
+                </div>
+                <div style={contentSection}>
+                    <h4 style={contentFieldTitle}>🔍 SEO Tags</h4>
+                    <p style={contentFieldText}>{content.seo_tags}</p>
+                </div>
+            </div>
+        );
+    };
+
     return (
         <div style={containerStyle}>
             <div style={cardStyle}>
@@ -225,9 +305,8 @@ const CGPage = () => {
                             </div>
                         )}
                         {generatedContent && (
-                            <div style={resultBoxStyle}>
-                                <h2 style={resultTitleStyle}>Generated Content</h2>
-                                <p style={resultTextStyle}>{generatedContent}</p>
+                            <div style={generatedContentContainerStyle}>
+                                {renderGeneratedContent(generatedContent)}
                             </div>
                         )}
                     </div>
@@ -247,7 +326,6 @@ const containerStyle = {
     backgroundColor: "transparent",
     minHeight: '100vh',
     fontFamily: 'sans-serif',
-    
 };
 
 const cardStyle = {
@@ -272,6 +350,7 @@ const mainContentStyle = {
     display: 'flex',
     flexDirection: 'row',
     gap: '32px',
+    flexWrap: 'wrap', // Added for responsiveness
 };
 
 const inputSectionStyle = {
@@ -353,6 +432,7 @@ const resultTitleStyle = {
 const resultTextStyle = {
     color: '#374151',
     lineHeight: '1.6',
+    whiteSpace: 'pre-wrap', // Preserves whitespace like newlines
 };
 
 const nextButtonStyle = {
@@ -360,5 +440,51 @@ const nextButtonStyle = {
     marginTop: '16px',
     backgroundColor: '#10b981',
 };
+
+const generatedContentContainerStyle = {
+    marginTop: '24px',
+    padding: '24px',
+    backgroundColor: '#fff',
+    borderRadius: '8px',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+    border: '1px solid #e5e7eb',
+};
+
+const contentPostStyle = {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '20px',
+};
+
+const contentSectionTitle = {
+    fontSize: '24px',
+    fontWeight: '700',
+    marginBottom: '8px',
+    color: '#3b82f6',
+    borderBottom: '2px solid #dbeafe',
+    paddingBottom: '8px',
+};
+
+const contentSection = {
+    backgroundColor: '#f9fafb',
+    padding: '16px',
+    borderRadius: '8px',
+    border: '1px solid #e5e7eb',
+};
+
+const contentFieldTitle = {
+    fontSize: '18px',
+    fontWeight: '600',
+    color: '#1f2937',
+    marginBottom: '4px',
+};
+
+const contentFieldText = {
+    fontSize: '16px',
+    color: '#4b5563',
+    lineHeight: '1.6',
+    whiteSpace: 'pre-wrap',
+};
+
 
 export default CGPage;

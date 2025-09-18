@@ -1,4 +1,4 @@
-const api_link = import.meta.env.VITE_API_URL;
+const api_link = "http://127.0.0.1:8000";
 const endpoints = {
     content: `${api_link}/api/generate-content`,
     bio: `${api_link}/api/generate-bio`
